@@ -17,7 +17,6 @@ LocalUserAuthSchema.index({userId: 1}, {unique: true});
 
 // 用户信息
 var UserProfileSchema = new mongoose.Schema({
-  username: {type: String, required: true},
   name: {type: String, required: false},
   sex: {type: String, required: true},
   age: {type: Number, min: 1, max: 150},  //
