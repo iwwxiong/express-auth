@@ -10,5 +10,9 @@ module.exports = function(app){
   /* 加载中间件 */
 
   /* 加载路由 */
-
+    router.get('/', function(req, res,next){
+        res.redirect('/api-docs');
+    });
+    app.use(router);
+    app.use('/auth', userRouters);
 };

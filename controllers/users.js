@@ -2,10 +2,10 @@
 /*
  * Created by wwxiong on 2016/01/25.
  */
-var model = require('./models');
+var model = require('../models');
 var Group = model.Group;
 var Permission = model.Permission;
-var proxy = require('./proxy');
+var proxy = require('../proxy');
 var userProxy = proxy.User;
 
 /*
@@ -21,7 +21,7 @@ var userProxy = proxy.User;
 /*
  * 查看所有用户
  */
-exports.getUsers = function(res, req, next){
+exports.getUsers = function(req, res, next){
   userProxy.getUsersByQuery({}, {}).then(function(users){
     return res.send({
       'result': true,
@@ -35,18 +35,16 @@ exports.getUsers = function(res, req, next){
 /*
  * 新增用户信息
  */
-exports.postUser = function(res, req, next){
-  let username = res.body.username;
-  let name = res.body.name;
-  let age = res.body.age;
-  let sex = res.body.sex;
-  let age = res.body.age;
-  let email = res.body.email;
-  let telephone = res.body.telephone;
+exports.postUser = function(req, res, next){
+  let username = req.body.username;
+  let name = req.body.name;
+  let age = req.body.age;
+  let sex = req.body.sex;
+  let telephone = req.body.telephone;
   userProxy.getUserByUsername(username).then(function(user){
     if(user)
       return res.send({'result': false, 'message': '用户名已存在'});
-    userProxy.newUser(username, name, sex, age, email, telephone).then(function(u){
+    userProxy.newUser(username, name, sex, age, telephone).then(function(u){
       return res.send({
         'result': true,
         'data': u
@@ -59,9 +57,9 @@ exports.postUser = function(res, req, next){
 /*
  * 根据用户ID获取用户
  */
-exports.getUser = function(res, req, next){
-  var userId = res.params.userId;
-  user.Proxy.getUserById(userId).then(function(user){
+exports.getUser = function(req, res, next){
+  var userId = req.params.userId;
+  userProxy.getUserById(userId).then(function(user){
     return res.send({
       'result': true,
       'data': user
@@ -74,13 +72,13 @@ exports.getUser = function(res, req, next){
 /*
  * 获取用户群组信息
  */
-exports.getGroups = function(res, req, next){
+exports.getGroups = function(req, res, next){
   var userId = req.params.userId;
   Group.find({}, function(err, groups){
     if(groups){
       return res.send({
         'result': true,
-        'data': data
+        'data': groups
       });
     }
   });
@@ -89,14 +87,14 @@ exports.getGroups = function(res, req, next){
 /*
  * 添加用户群组
  */
-exports.postGroup = function(res, req, next){
-  var name = res.body.name;  //课群名称
+exports.postGroup = function(req, res, next){
+  var name = req.body.name;  //课群名称
   Group.findOne({'name': name}, function(err, group){
     if(err, group){
-      return res.send({'result': false, 'message': '课群名称已存在'});
+      return res.send({'result': false, 'message': '群组已存在'});
     }
-    newGroup(name).then(function(data){
-      return res.send({'result': true, 'data': group});
+    userProxy.newGroup(name).then(function(data){
+      return res.send({'result': true, 'data': data});
     }).catch(function(err){
       return next(err);
     });
@@ -106,8 +104,8 @@ exports.postGroup = function(res, req, next){
 /*
  * 根据群组ID获取群组信息
  */
-exports.getGroupById = function(res, req, next){
-  var groupId = res.params.groupId;
+exports.getGroupById = function(req, res, next){
+  var groupId = req.params.groupId;
   Group.findOne({_id: groupId}, function(err, group){
     if(group){
       return res.send({'result': true, 'data': group});
@@ -118,9 +116,9 @@ exports.getGroupById = function(res, req, next){
 /*
  * 根据群组ID修改群组信息
  */
-exports.putGroup = function(res, req, next){
-  var groupId = res.params.groupId;
-  var name = res.body.name;
+exports.putGroup = function(req, res, next){
+  var groupId = req.params.groupId;
+  var name = req.body.name;
   Group.findOne({_id: groupId}, function(err, group){
     if(group){
       group.name = name;
@@ -136,7 +134,7 @@ exports.putGroup = function(res, req, next){
 /*
  * 获取权限列表信息
  */
-exports.getPermissions = function(res, req, next){
+exports.getPermissions = function(req, res, next){
   Permission.find({}, function(err, permissions){
     if(permissions){
       return res.send({'result': true, 'data': permissions});
@@ -147,14 +145,14 @@ exports.getPermissions = function(res, req, next){
 /*
  * 获取权限列表信息
  */
-exports.postPermission = function(res, req, next){
-  var name = res.body.name;
-  var description = res.body.description;
+exports.postPermission = function(req, res, next){
+  var name = req.body.name;
+  var description = req.body.description;
   Permission.findOne({'name': name}, function(err, permission){
     if(permission){
       return res.send({'result': false, 'message': '权限已存在'});
     }
-    newPermission(name, description).then(function(p){
+    userProxy.newPermission(name, description).then(function(p){
       return res.send({'result': true, 'data': p});
     });
   });
@@ -163,9 +161,9 @@ exports.postPermission = function(res, req, next){
 /*
  * 获取权限列表信息
  */
-exports.getPermissionById = function(res, req, next){
+exports.getPermissionById = function(req, res, next){
   var permissionId = req.params.permissionId;
-  Permission.findOne({_id: permissionId}, function(permission){
+  Permission.findOne({_id: permissionId}, function(err, permission){
     if(!permission){
       return res.send({'result': false, 'data': '权限未找到'});
     }
@@ -176,17 +174,17 @@ exports.getPermissionById = function(res, req, next){
 /*
  * 修改权限
  */
-exports.putPermission = function(res, req, next){
+exports.putPermission = function(req, res, next){
   var permissionId = req.params.permissionId;
 };
 
 /*
  * 获取用户所有权限
  */
-exports.getUserPermissions = function(res, req, next){
-  var userId = res.params.userId;
+exports.getUserPermissions = function(req, res, next){
+  var userId = req.params.userId;
   userProxy.getUserPermissions(userId).then(function(data){
-    res.send({'result': true, 'data': data});
+    res.send({'result': true, 'data': Array.from(data)});
   }).catch(function(err){
     return next(err);
   });
@@ -195,10 +193,10 @@ exports.getUserPermissions = function(res, req, next){
 /*
  * 获取用户所属组
  */
-exports.getUserGroups = function(res, req, next){
-  var userId = res.params.userId;
+exports.getUserGroups = function(req, res, next){
+  var userId = req.params.userId;
   userProxy.getUserGroups(userId).then(function(data){
-    res.send({'result': true, 'data': data});
+    res.send({'result': true, 'data': Array.from(data)});
   }).catch(function(err){
     return next(err);
   });
@@ -207,10 +205,10 @@ exports.getUserGroups = function(res, req, next){
 /*
  * 获取组权限
  */
-exports.getGroupPermissions = function(res, req, next){
-  var groupId = res.params.groupId;
+exports.getGroupPermissions = function(req, res, next){
+  var groupId = req.params.groupId;
   userProxy.getGroupPermissions(groupId).then(function(data){
-    res.send({'result': true, 'data': data});
+    res.send({'result': true, 'data': Array.from(data)});
   }).catch(function(err){
     return next(err);
   });

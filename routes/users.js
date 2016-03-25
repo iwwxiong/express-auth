@@ -4,7 +4,7 @@
  */
 var express = require('express');
 var router = express.Router();
-var User = require('./controllers');
+var User = require('../controllers').User;
 
 /* 用户路由 */
 router.get('/users', User.getUsers);

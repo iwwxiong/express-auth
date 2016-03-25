@@ -55,14 +55,13 @@ var _getUserGroupIds = function(userId){
 /*
  * 新建用户
  */
-exports.newUser = function(username, name, sex, age, email, telephone){
+exports.newUser = function(username, name, sex, age, telephone){
   return new Promise(function(resolve, reject){
     var u = UserProfile();
     u.username = username;
     u.name = name;
     u.sex = sex;
     u.age = age;
-    u.email = email;
     u.telephone = telephone;
     u.save(function(err){
       if(err)
@@ -197,7 +196,7 @@ exports.getGroupPermissions = function(groupId){
     ], function(err, results){
       if(err)
         reject(err);
-      resolve(new Set(results));
+      resolve(results);
     });
   });
 };

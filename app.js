@@ -14,13 +14,10 @@ var app = express();
 
 // 导入自定义模块
 var router = require('./routes');
-var swagger = require('./swagger');
-var errorHandler = require('./middleware/errorhandler').errorHandler;
-var settings = require('./settings');
+var swagger = require('./swaggers');
+var config = require('./config_default');
 
 //// 配置views目录和模板语言
-app.set('views', __dirname+'/views');
-app.set('view engine', 'jade');
 app.use(favicon(path.join(__dirname, '/public/img/w.jpg')));
 app.use(logger('dev'));
 
@@ -30,16 +27,15 @@ app.use(multiparty());
 app.use(bodyParser());
 app.use(cookieParser());
 app.use(session({
-    key: 'session_id',
-    store: new SessionStore({
-        url: settings.storeUri
-    }),
-    cookie: {maxAge: 1000*3600*24*7},
-    secret: settings.sessionSecret
+  key: 'session_id',
+  store: new SessionStore({
+    url: config.storeUri
+  }),
+  cookie: {maxAge: 1000*3600*24*7},
+  secret: config.sessionSecret
 }));
 
 router(app);
 swagger(app);
-app.use(errorHandler);
 
 module.exports = app;

@@ -20,7 +20,7 @@ module.exports = {
 
     // Swagger resources setting
     discoveryUrl: '/resources',
-    basePath: 'http://127.0.0.1',
+    basePath: 'http://127.0.0.1:8000',
     version: '0.1',
-    pathResource: 'http://127.0.0.1/resources',
+    pathResource: 'http://127.0.0.1:8000/resources',
 };
