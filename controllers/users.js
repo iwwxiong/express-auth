@@ -107,9 +107,10 @@ exports.postGroup = function(req, res, next){
 exports.getGroupById = function(req, res, next){
   var groupId = req.params.groupId;
   Group.findOne({_id: groupId}, function(err, group){
-    if(group){
+    if(!err){
       return res.send({'result': true, 'data': group});
     }
+    return next(err);
   });
 };
 
@@ -136,9 +137,10 @@ exports.putGroup = function(req, res, next){
  */
 exports.getPermissions = function(req, res, next){
   Permission.find({}, function(err, permissions){
-    if(permissions){
+    if(!err){
       return res.send({'result': true, 'data': permissions});
     }
+    return next(err);
   });
 };
 
@@ -164,10 +166,10 @@ exports.postPermission = function(req, res, next){
 exports.getPermissionById = function(req, res, next){
   var permissionId = req.params.permissionId;
   Permission.findOne({_id: permissionId}, function(err, permission){
-    if(!permission){
-      return res.send({'result': false, 'data': '权限未找到'});
+    if(!err){
+      return res.send({'result': true, 'data': permission});
     }
-    return res.send({'result': true, 'data': permission});
+    return next(err);
   });
 };
 
